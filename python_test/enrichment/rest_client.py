@@ -10,7 +10,7 @@ TIMEZONE = "America/New_York"
 
 
 def get_json(url, params, attempts=4):
-    """Send a GET request and return the JSON reply, retrying if the connection fails."""
+    """Request a URL and return the JSON reply, retrying if the connection fails."""
     for attempt in range(attempts):
         try:
             response = requests.get(url, params=params, timeout=60)
