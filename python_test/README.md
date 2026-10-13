@@ -8,7 +8,7 @@ Enriches calendar year 2026 Public Space Occupancy Permit locations (DC Water, P
 
 1. **Built a small download helper.** All data comes from DC's public ArcGIS map services, which return at most 2,000 rows per request. [`enrichment/rest_client.py`](enrichment/rest_client.py) handles paging, retries, error replies, dates and coded values, so every other step can fetch data in one line.
 
-2. **Explored and checked the data.** There is no data dictionary, so I looked at the data before writing any rules: completeness, dates, permit IDs, utility names and locations. Each finding became a rule for the pipeline. See [`notebooks/01_explore_layer24.ipynb`](notebooks/01_explore_layer24.ipynb).
+2. **Explored and checked the data.** There is no data dictionary, so I looked at the data before writing any rules: completeness, dates, permit IDs, utility names and locations. Each finding became a rule for the pipeline. See [`01_explore_layer24.ipynb`](01_explore_layer24.ipynb).
 
 3. **Turned the rules into a pipeline** in [`enrichment/`](enrichment/): filter the permits, match each location to a road segment, look up its functional class, and validate the matches. *(to do)*
 
