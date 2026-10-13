@@ -6,13 +6,15 @@ Enriches calendar year 2026 Public Space Occupancy Permit locations (DC Water, P
 
 ## How I approached this
 
-1. **Built a small download helper.** All data comes from DC's public ArcGIS map services, which return at most 2,000 rows per request. [`enrichment/rest_client.py`](enrichment/rest_client.py) handles paging, retries, error replies, dates and coded values, so every other step can fetch data in one line.
+The files in [`enrichment/`](enrichment/) are numbered in the order I worked, so the folder reads as the decision flow.
 
-2. **Explored and checked the data.** There is no data dictionary, so I looked at the data before writing any rules: completeness, dates, permit IDs, utility names and locations. Each finding became a rule for the pipeline. See [`enrichment/01_explore_layer24.ipynb`](enrichment/01_explore_layer24.ipynb).
+- **Step 0: download helper.** All data comes from DC's public ArcGIS map services, which return at most 2,000 rows per request. [`step0_rest_client.py`](enrichment/step0_rest_client.py) handles paging, retries, error replies, dates and coded values, so every other step can fetch data in one line.
 
-3. **Turned the rules into a pipeline** in [`enrichment/`](enrichment/): filter the permits, match each location to a road segment, look up its functional class, and validate the matches. *(to do)*
+- **Step 1: explore and check the data.** There is no data dictionary, so I looked at the data before writing any rules: completeness, dates, permit IDs, utility names and locations. Each finding became a rule for the steps that follow. See [`step1_explore_layer24.ipynb`](enrichment/step1_explore_layer24.ipynb).
 
-4. **Ran it** with `enrich_permits.py`, which writes the CSV and a QC summary to `output/`. Some of the checks from step 2 run again on every run, so changes in the source data are flagged rather than silently passed through. *(to do)*
+- **Steps 2–6: the pipeline.** Filter the permits, match each location to a road segment, look up its functional class, validate the matches, and write the output. *(to do)*
+
+- **Run it** with `enrich_permits.py`, which calls steps 2–6 in order and writes the CSV and a QC summary to `output/`. Some of the checks from step 1 run again on every run, so changes in the source data are flagged rather than silently passed through. *(to do)*
 
 ## Key decisions
 
