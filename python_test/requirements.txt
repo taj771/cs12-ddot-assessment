@@ -1,0 +1,3 @@
+# Packages needed to run the enrichment script (tested on Python 3.11)
+requests==2.34.2
+pandas==3.0.6
