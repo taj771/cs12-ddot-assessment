@@ -1,0 +1,29 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.pytest_cache/
+.ruff_cache/
+*.egg-info/
+
+# Data and caches (regenerated from the public REST feeds)
+data/
+cache/
+*.gdb/
+*.hyper
+
+# Large packaged deliverables (published as release assets instead)
+*.ppkx
+*.twbx
+*.zip
+
+# Secrets / local config
+.env
+*.local.*
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
