@@ -21,6 +21,8 @@ The files in [`enrichment/`](enrichment/) are numbered in the order I worked, so
 | Question | Decision | Evidence |
 |---|---|---|
 | What identifies a permit? | `TrackingNumber` | Always filled. `PermitNumber` is blank on 29% of rows, exactly the rows with no issue date, so it only exists once a permit is issued. |
+| Which dates count as 2026? | Application date **or** issue date on/after 1 Jan 2026 | Follows the brief's wording. Adds 7 locations applied for in late 2025 and issued in 2026. |
+| Which statuses? | All, with `StatusDescription` in the output | The brief doesn't filter by status, and a rejected or withdrawn application is still an application. The Associate Director can filter on the column. |
 | *(more as the exploration continues)* | | |
 
 ## How to run *(to do)*
@@ -28,3 +30,5 @@ The files in [`enrichment/`](enrichment/) are numbered in the order I worked, so
 ## Output *(to do)*
 
 ## Assumptions and limitations *(to do)*
+
+- **Layer 24 only keeps recent permits.** The earliest expiration date in the layer is 30 August 2026, about six weeks before the data was pulled. Older permits appear to be removed from the nightly extract once they expire. The result therefore covers 2026 permits still in the layer on the pull date, and January–August 2026 is heavily undercounted (16 applications in January vs 5,039 in September). No other occupancy permit layer is available in the service.
