@@ -58,7 +58,7 @@ def review_reason(row):
 
 def nearest_addresses(permits):
     # Start from the answers saved on earlier runs, and look up each new point once
-    cache = json.loads(CACHE_FILE.read_text()) if CACHE_FILE.exists() else {}
+    cache = json.loads(CACHE_FILE.read_text(encoding="utf-8")) if CACHE_FILE.exists() else {}
     points = permits.drop_duplicates(["XCoord", "YCoord"])[["XCoord", "YCoord"]]
     todo = [(x, y) for x, y in points.itertuples(index=False) if point_key(x, y) not in cache]
     print(f"{len(points)} distinct points, {len(todo)} to check against MAR")
@@ -68,7 +68,7 @@ def nearest_addresses(permits):
         for (x, y), answer in zip(todo, pool.map(lambda point: nearest_address(*point), todo)):
             cache[point_key(x, y)] = answer
     config.CACHE_DIR.mkdir(exist_ok=True)
-    CACHE_FILE.write_text(json.dumps(cache))
+    CACHE_FILE.write_text(json.dumps(cache), encoding="utf-8")
 
     # One row per point, ready to attach to the permit locations
     return pd.DataFrame(

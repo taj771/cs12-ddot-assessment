@@ -144,14 +144,14 @@ def point_key(x, y):
 def load_cache():
     # Read saved answers, or start empty on the first run
     if CACHE_FILE.exists():
-        return json.loads(CACHE_FILE.read_text())
+        return json.loads(CACHE_FILE.read_text(encoding="utf-8"))
     return {}
 
 
 def save_cache(cache):
     # Write all answers so far to cache/road_matches.json
     config.CACHE_DIR.mkdir(exist_ok=True)
-    CACHE_FILE.write_text(json.dumps(cache))
+    CACHE_FILE.write_text(json.dumps(cache), encoding="utf-8")
 
 
 if __name__ == "__main__":
