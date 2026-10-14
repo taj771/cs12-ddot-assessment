@@ -14,6 +14,15 @@ work/
 *.gdb/
 *.hyper
 
+# ArcGIS Pro project for the GIS test: keep the project and its geodatabase,
+# skip Pro's temporary files (commit only with Pro closed)
+!gis_test/CS12_GIS/CS12_GIS.gdb/
+*.lock
+.backups/
+ImportLog/
+Index/
+GpMessages/
+
 # Large packaged deliverables (published as release assets instead)
 *.ppkx
 *.twbx
