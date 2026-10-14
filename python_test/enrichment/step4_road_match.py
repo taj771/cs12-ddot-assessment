@@ -1,4 +1,4 @@
-"""Step 4: match each permit location to the nearest road segment that isn't an alley.
+"""Step 4: match each permit location to the nearest real road (not an alley, driveway, walkway or trail).
 
 Uses DDOT's road lookup service (getPointOnSubBlock). Each distinct point is looked
 up once, and the answers are saved in cache/ so a rerun doesn't call the service again.
@@ -51,33 +51,50 @@ def match_roads(permits):
 
 
 def nearest_road(x, y):
-    # Ask the road service for segments within the search radius of this point
-    params = {
-        "x": x,
-        "y": y,
-        "inSR": config.COORDINATE_SYSTEM,
-        "outSR": config.COORDINATE_SYSTEM,
-        "searchRadius": config.SEARCH_RADIUS_M,
-        "f": "json",
-    }
-    candidates = get_json(config.LRS_URL, params).get("pointOnSubBlocks", [])
-    # Nearest segment first (offsetInMeters is the distance from the point)
-    candidates.sort(key=lambda c: c["offsetInMeters"])
+    # Search at the normal distance first. If no real road is found (e.g. a permit
+    # in an alley, or on a large site), search once more a little wider.
+    road = None
+    for radius in (config.SEARCH_RADIUS_M, config.WIDER_SEARCH_RADIUS_M):
+        candidates = segments_near(x, y, radius)
+        # Alleys, driveways, walkways and trails have no functional class, so skip them
+        roads = [c for c in candidates if c["routeType"] not in config.NOT_ROADS]
+        if roads:
+            road = roads[0]
+            break
 
-    # Alleys have no functional class, so skip them (as the brief asks)
-    roads = [c for c in candidates if c["routeType"] != "Alley"]
-    if not roads:
-        return no_match("only alleys nearby" if candidates else "no road within search radius")
+    if road is None:
+        return no_match(f"no road within {config.WIDER_SEARCH_RADIUS_M} m")
 
-    # Use the nearest real road, and note if an alley was closer
-    road = roads[0]
+    # Note how the road was found: directly, past a nearer non-road segment, or on the wider search
+    if radius > config.SEARCH_RADIUS_M:
+        note = f"matched on wider search ({radius} m)"
+    elif candidates[0]["routeType"] in config.NOT_ROADS:
+        note = f"skipped a nearer {candidates[0]['routeType'].lower()}"
+    else:
+        note = "matched"
+
     return {
         "SubBlockKey": road["subBlockKey"],
         "RoadName": road["routeName"],
         "RouteType": road["routeType"],
         "DistanceToRoad_m": road["offsetInMeters"],
-        "MatchNote": "skipped a nearer alley" if candidates[0]["routeType"] == "Alley" else "matched",
+        "MatchNote": note,
     }
+
+
+def segments_near(x, y, radius):
+    # Ask the road service for all segments within `radius` metres of the point
+    params = {
+        "x": x,
+        "y": y,
+        "inSR": config.COORDINATE_SYSTEM,
+        "outSR": config.COORDINATE_SYSTEM,
+        "searchRadius": radius,
+        "f": "json",
+    }
+    candidates = get_json(config.LRS_URL, params).get("pointOnSubBlocks", [])
+    # Nearest segment first (offsetInMeters is the distance from the point)
+    return sorted(candidates, key=lambda c: c["offsetInMeters"])
 
 
 def no_match(reason):

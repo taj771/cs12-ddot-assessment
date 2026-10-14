@@ -28,7 +28,13 @@ UTILITY_PATTERNS = {
 # --- Matching locations to roads ---
 COORDINATE_SYSTEM = 26985   # XCoord/YCoord are in NAD83 / Maryland State Plane (metres)
 SEARCH_RADIUS_M = 50        # 99% of permit points are within 30 m of the street
+WIDER_SEARCH_RADIUS_M = 100 # second try for the few points with no road within 50 m
 PARALLEL_LOOKUPS = 5        # road lookups take ~1.5 s each, so run a few at a time
+
+# Segment types with no FHWA functional class. The brief says to skip alleys;
+# driveways, walkways and trails give the same blank result, so they are skipped too.
+# "Unknown" is how the road service labels a walkway segment (checked against layer 162).
+NOT_ROADS = ["Alley", "Driveway", "Walkway", "Trail", "Unknown"]
 
 # --- Output ---
 OUTPUT_DIR = Path(__file__).parent / "output"
