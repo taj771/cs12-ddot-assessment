@@ -30,7 +30,7 @@ def add_road_class(permits):
 
     # For each permit, the most important class among its locations (lowest code)
     highest = permits.groupby("TrackingNumber")["FHWAClassCode"].min()
-    permits["HighestFHWAClassCode"] = permits["TrackingNumber"].map(highest)
+    permits["HighestFHWAClassCode"] = permits["TrackingNumber"].map(highest).astype("Int64")
 
     # Add the readable name of the highest class, e.g. 4 -> "Minor Arterial"
     names = segments.dropna(subset=["FHWAClassCode"]).drop_duplicates("FHWAClassCode")
