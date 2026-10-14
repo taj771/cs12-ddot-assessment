@@ -31,7 +31,7 @@ def validate(permits):
     permits["MARClassCode"] = permits["MARSubBlockKey"].map(segments["FHWAClassCode"]).astype("Int64")
     permits["MARClass"] = permits["MARSubBlockKey"].map(segments["FHWAClass"])
 
-    # Compare MAR's road with ours, then list anything that needs a second look
+    # Compare MAR's road with ours, and flag the rows where MAR and the address both disagree with us
     permits["MARCheck"] = permits.apply(compare_with_mar, axis=1)
     permits["ReviewReason"] = permits.apply(review_reasons, axis=1)
     permits["NeedsReview"] = permits["ReviewReason"] != ""
@@ -64,20 +64,12 @@ def compare_with_mar(row):
 
 
 def review_reasons(row):
-    # Every reason to look at this row again, joined into one text
-    reasons = []
-    if pd.isna(row["FHWAClassCode"]):
-        reasons.append("no road class")
-    if "- check" in str(row["MatchNote"]):
-        reasons.append("wider search, address street not found")
-    if row["AtIntersection"] and row["SegmentRoadType"] == "Ramp":
-        reasons.append("ramp at corner")
     # MAR often picks a corner house on the cross street, so its answer alone isn't enough.
-    # Flag only when the permit's own address names MAR's road and not ours.
+    # Flag only when the permit's own address also names MAR's road, and not ours.
     street = street_in_address(row["WorkLocationFullAddress"])
     if row["MARCheck"] == "different road, different class" and row["MARRoadName"] == street != row["RoadName"]:
-        reasons.append(f"MAR and address say {row['MARRoadName']} ({row['MARClass']})")
-    return "; ".join(reasons)
+        return f"MAR and address say {row['MARRoadName']} ({row['MARClass']})"
+    return ""
 
 
 def nearest_addresses(permits):
@@ -160,12 +152,9 @@ def qc_summary(permits):
         "Check against MAR (nearest address's road vs our road):",
         (permits["MARCheck"].value_counts(normalize=True) * 100).round(1).astype(str).add(" %").to_string(),
         "",
-        f"Locations needing review: {permits['NeedsReview'].sum()} "
-        f"({permits.loc[permits['NeedsReview'], 'TrackingNumber'].nunique()} applications)",
+        f"Locations needing review (MAR and address name a road of another class): "
+        f"{permits['NeedsReview'].sum()} ({permits.loc[permits['NeedsReview'], 'TrackingNumber'].nunique()} applications)",
     ]
-    # How often each reason comes up (a row can have more than one)
-    for reason in ["no road class", "wider search", "ramp at corner", "MAR and address"]:
-        lines.append(f"  {reason}: {permits['ReviewReason'].str.contains(reason).sum()}")
     return "\n".join(lines)
 
 
