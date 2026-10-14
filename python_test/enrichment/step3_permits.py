@@ -47,3 +47,10 @@ def find_utility(permits):
     for name, pattern in config.UTILITY_PATTERNS.items():
         utility[names.str.contains(pattern, case=False)] = name
     return utility
+
+
+if __name__ == "__main__":
+    # Quick check from the python_test folder:  python -m enrichment.step3_permits
+    permits = load_permits()
+    print(f"{len(permits):,} locations, {permits['TrackingNumber'].nunique():,} applications")
+    print(permits.groupby("Utility")["TrackingNumber"].agg(locations="size", applications="nunique"))
