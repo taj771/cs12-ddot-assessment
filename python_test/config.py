@@ -28,6 +28,7 @@ UTILITY_PATTERNS = {
 # --- Matching locations to roads ---
 COORDINATE_SYSTEM = 26985   # XCoord/YCoord are in NAD83 / Maryland State Plane (metres)
 SEARCH_RADIUS_M = 50        # 99% of permit points are within 30 m of the street
+PARALLEL_LOOKUPS = 5        # road lookups take ~1.5 s each, so run a few at a time
 
 # --- Output ---
 OUTPUT_DIR = Path(__file__).parent / "output"

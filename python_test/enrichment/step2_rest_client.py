@@ -8,12 +8,15 @@ import requests
 PAGE_SIZE = 2000  # max rows the DC services return per request
 TIMEZONE = "America/New_York"
 
+# One shared connection, reused across requests (much faster for thousands of calls)
+session = requests.Session()
+
 
 def get_json(url, params, attempts=4):
     """Request a URL and return the JSON reply, retrying if the connection fails."""
     for attempt in range(attempts):
         try:
-            response = requests.get(url, params=params, timeout=60)
+            response = session.get(url, params=params, timeout=60)
             response.raise_for_status()
             data = response.json()
             break
