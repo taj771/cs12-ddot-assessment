@@ -10,6 +10,7 @@ venv/
 # Data and caches (regenerated from the public REST feeds)
 data/
 cache/
+work/
 *.gdb/
 *.hyper
 

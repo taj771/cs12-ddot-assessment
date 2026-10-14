@@ -31,4 +31,5 @@ SEARCH_RADIUS_M = 50        # 99% of permit points are within 30 m of the street
 
 # --- Output ---
 OUTPUT_DIR = Path(__file__).parent / "output"
+WORK_DIR = Path(__file__).parent / "work"     # each step's table, for checking (not committed)
 CACHE_DIR = Path(__file__).parent / "cache"

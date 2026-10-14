@@ -54,3 +54,7 @@ if __name__ == "__main__":
     permits = load_permits()
     print(f"{len(permits):,} locations, {permits['TrackingNumber'].nunique():,} applications")
     print(permits.groupby("Utility")["TrackingNumber"].agg(locations="size", applications="nunique"))
+
+    config.WORK_DIR.mkdir(exist_ok=True)
+    permits.to_csv(config.WORK_DIR / "step3_permits.csv", index=False)
+    print(f"Saved to {config.WORK_DIR / 'step3_permits.csv'}")
