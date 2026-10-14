@@ -24,6 +24,7 @@ The files in [`enrichment/`](enrichment/) are numbered in the order I worked, so
 | Which dates count as 2026? | Application date **or** issue date on/after 1 Jan 2026 | Follows the brief's wording. Adds 7 locations applied for in late 2025 and issued in 2026. |
 | Which statuses? | All, with `StatusDescription` in the output | The brief doesn't filter by status, and a rejected or withdrawn application is still an application. The Associate Director can filter on the column. |
 | Which permit types? | Exactly "Construction Staging Area" and "Mobile Crane Work Zone" | Both exist with the brief's spelling. No variants. Free-text "Other" rows (2 close matches) are not a reliable category, so they're left out. |
+| How to identify the three utilities? | Pattern match on applicant, permittee **or** owner name; output a clean `Utility` column | No utility column exists, and names vary ("DCWater/CIP", "Wash Gas & Light Co.", "Pepco Holdings Inc."). Exact-name matching would miss most. No application names two utilities. Result: 3,102 applications, 4,926 locations. |
 | *(more as the exploration continues)* | | |
 
 ## How to run *(to do)*
