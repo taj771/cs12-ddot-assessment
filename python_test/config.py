@@ -9,6 +9,8 @@ LRS_URL = (
     "https://rh.dcgis.dc.gov/dcgis/rest/services/DDOT/RoadwayBlocks/MapServer/"
     "exts/DdotLrsExtensions/getPointOnSubBlock"
 )
+# DC's Master Address Repository (MAR) address points, used to check the road match
+ADDRESSES_URL = "https://maps2.dcgis.dc.gov/dcgis/rest/services/DCGIS_DATA/Location_WebMercator/MapServer/0"
 
 # --- Which permits ---
 # A location is kept if it was applied for OR issued on or after this date
@@ -36,6 +38,10 @@ PARALLEL_LOOKUPS = 5        # road lookups take ~1.5 s each, so run a few at a t
 # driveways, walkways and trails give the same blank result, so they are skipped too.
 # "Unknown" is how the road service labels a walkway segment (checked against layer 162).
 NOT_ROADS = ["Alley", "Driveway", "Walkway", "Trail", "Unknown"]
+
+# --- Checking the matches ---
+ADDRESS_SEARCH_RADIUS_M = 50  # look for the nearest MAR address within this distance
+FAR_FROM_ROAD_M = 30          # matches further than this from the road are flagged
 
 # --- Output ---
 OUTPUT_DIR = Path(__file__).parent / "output"
