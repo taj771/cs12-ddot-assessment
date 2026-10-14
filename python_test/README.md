@@ -30,6 +30,8 @@ The first run takes about 20 minutes, because each permit location is looked up 
 
 Each step can also be run on its own to check it, e.g. `python -m enrichment.step4_road_match`. It saves its table to `work/`.
 
+**Tests.** `pip install pytest` then `python -m pytest`. The tests cover the matching rules (utility names, address parsing, skipping alleys, corner ties, wider search, highest class per permit, the MAR check) with made-up data, so they run offline in about a second. GitHub runs them on Windows and Linux on every change.
+
 ## Output
 
 `output/occupancy_permits_fhwa_2026.csv`, one row per permit location. Dates are in DC local time.
@@ -120,4 +122,4 @@ The road lookup picks the road **nearest to the permit point**. To check it anot
 - A `MatchConfidence` column (high / medium / low) based on how many of the three sources agree: road lookup, MAR address and permit address.
 - Use the MAR API (with a key) to look up the permit's address text, which would give a check independent of the permit point.
 - A map of the corner locations and the 35 review rows, to see where matching is hardest.
-- Unit tests for the matching rules and an automatic run on Windows for every change.
+- A scheduled run (e.g. weekly) to keep the output current, since the permit layer drops old permits.
