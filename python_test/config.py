@@ -41,7 +41,6 @@ NOT_ROADS = ["Alley", "Driveway", "Walkway", "Trail", "Unknown"]
 
 # --- Checking the matches ---
 ADDRESS_SEARCH_RADIUS_M = 50  # look for the nearest MAR address within this distance
-FAR_FROM_ROAD_M = 30          # matches further than this from the road are flagged
 
 # --- Output ---
 OUTPUT_DIR = Path(__file__).parent / "output"

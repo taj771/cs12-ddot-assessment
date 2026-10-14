@@ -68,8 +68,6 @@ def review_reasons(row):
     reasons = []
     if pd.isna(row["FHWAClassCode"]):
         reasons.append("no road class")
-    if row["DistanceToRoad_m"] > config.FAR_FROM_ROAD_M:
-        reasons.append(f"far from road ({row['DistanceToRoad_m']:.0f} m)")
     if "- check" in str(row["MatchNote"]):
         reasons.append("wider search, address street not found")
     if row["AtIntersection"] and row["SegmentRoadType"] == "Ramp":
@@ -166,7 +164,7 @@ def qc_summary(permits):
         f"({permits.loc[permits['NeedsReview'], 'TrackingNumber'].nunique()} applications)",
     ]
     # How often each reason comes up (a row can have more than one)
-    for reason in ["no road class", "far from road", "wider search", "ramp at corner", "MAR and address"]:
+    for reason in ["no road class", "wider search", "ramp at corner", "MAR and address"]:
         lines.append(f"  {reason}: {permits['ReviewReason'].str.contains(reason).sum()}")
     return "\n".join(lines)
 
