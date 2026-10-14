@@ -25,7 +25,8 @@ The files in [`enrichment/`](enrichment/) are numbered in the order I worked, so
 | Which statuses? | All, with `StatusDescription` in the output | The brief doesn't filter by status, and a rejected or withdrawn application is still an application. The Associate Director can filter on the column. |
 | Which permit types? | Exactly "Construction Staging Area" and "Mobile Crane Work Zone" | Both exist with the brief's spelling. No variants. Free-text "Other" rows (2 close matches) are not a reliable category, so they're left out. |
 | How to identify the three utilities? | Pattern match on applicant, permittee **or** owner name; output a clean `Utility` column | No utility column exists, and names vary ("DCWater/CIP", "Wash Gas & Light Co.", "Pepco Holdings Inc."). Exact-name matching would miss most. No application names two utilities. Result: 3,102 applications, 4,926 locations. |
-| *(more as the exploration continues)* | | |
+| Which point to match to a road? | The permit's recorded `XCoord`/`YCoord`, searching within 50 m, with the match distance kept in the output | 99% of points are within 30 m of the street (max 100 m). Using the recorded point avoids relying on the layer's own on-street position, which can't be checked. The distance column flags doubtful matches. |
+| Repeated locations | Each distinct point is looked up once | 4,926 rows use only 2,585 distinct points. No duplicate locations within an application. |
 
 ## How to run *(to do)*
 
