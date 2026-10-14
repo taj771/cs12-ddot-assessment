@@ -76,3 +76,13 @@ def fetch_layer(layer_url, where="1=1", fields="*", geometry=True):
             table[name + "_label"] = codes.map(labels)
 
     return table
+
+
+if __name__ == "__main__":
+    # Quick check, run from the python_test folder: python -m enrichment.step2_rest_client
+    # Downloads the road segments of one street to show the helper works, with readable labels added
+    import config
+
+    sample = fetch_layer(config.SUBBLOCKS_URL, where="ROUTENAME = 'KALORAMA RD NW'",
+                         fields="SUBBLOCKKEY,ROUTENAME,FHWAFUNCTIONALCLASS", geometry=False)
+    print(sample)
