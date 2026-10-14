@@ -12,10 +12,12 @@ import pandas as pd
 import config
 from .step2_rest_client import get_json
 
+# Saved answers from the road lookup service, one per point
 CACHE_FILE = config.CACHE_DIR / "road_matches.json"
 
 
 def match_roads(permits):
+    # Start from the answers saved on earlier runs
     cache = load_cache()
     failed = {}
 
@@ -37,6 +39,7 @@ def match_roads(permits):
             if i % 100 == 0:
                 save_cache(cache)
                 print(f"  {i} of {len(todo)} done")
+    # Save everything once all lookups are finished
     save_cache(cache)
 
     # Attach the match to every permit location
@@ -48,6 +51,7 @@ def match_roads(permits):
 
 
 def nearest_road(x, y):
+    # Ask the road service for segments within the search radius of this point
     params = {
         "x": x,
         "y": y,
@@ -57,6 +61,7 @@ def nearest_road(x, y):
         "f": "json",
     }
     candidates = get_json(config.LRS_URL, params).get("pointOnSubBlocks", [])
+    # Nearest segment first (offsetInMeters is the distance from the point)
     candidates.sort(key=lambda c: c["offsetInMeters"])
 
     # Alleys have no functional class, so skip them (as the brief asks)
@@ -64,6 +69,7 @@ def nearest_road(x, y):
     if not roads:
         return no_match("only alleys nearby" if candidates else "no road within search radius")
 
+    # Use the nearest real road, and note if an alley was closer
     road = roads[0]
     return {
         "SubBlockKey": road["subBlockKey"],
@@ -75,20 +81,24 @@ def nearest_road(x, y):
 
 
 def no_match(reason):
+    # An empty answer, with the reason no road was found
     return {"SubBlockKey": None, "RoadName": None, "RouteType": None, "DistanceToRoad_m": None, "MatchNote": reason}
 
 
 def point_key(x, y):
+    # Label for a point in the cache, e.g. "398361.15,134559.55"
     return f"{x},{y}"
 
 
 def load_cache():
+    # Read saved answers, or start empty on the first run
     if CACHE_FILE.exists():
         return json.loads(CACHE_FILE.read_text())
     return {}
 
 
 def save_cache(cache):
+    # Write all answers so far to cache/road_matches.json
     config.CACHE_DIR.mkdir(exist_ok=True)
     CACHE_FILE.write_text(json.dumps(cache))
 
@@ -98,8 +108,11 @@ if __name__ == "__main__":
     from .step3_permits import load_permits
 
     permits = match_roads(load_permits())
+
+    # Show how the matching went
     print(permits["MatchNote"].value_counts())
     print(permits["DistanceToRoad_m"].describe().round(1))
 
+    # Save the table to work/ for checking
     config.WORK_DIR.mkdir(exist_ok=True)
     permits.to_csv(config.WORK_DIR / "step4_road_match.csv", index=False)
