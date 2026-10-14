@@ -1,0 +1,58 @@
+name: Python test
+
+# Runs the unit tests on Windows (the platform the brief asks for) and Linux on every
+# push. The full enrichment can also be run on Windows by hand from the Actions tab.
+on:
+  push:
+    paths: ["python_test/**", ".github/workflows/python-test.yml"]
+  pull_request:
+    paths: ["python_test/**"]
+  workflow_dispatch:
+    inputs:
+      full_run:
+        description: "Also run enrich_permits.py on Windows (about 20 minutes, calls DC's map services)"
+        type: boolean
+        default: false
+
+defaults:
+  run:
+    working-directory: python_test
+
+jobs:
+  tests:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-latest, ubuntu-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install packages
+        run: |
+          python -m pip install -r requirements.txt
+          python -m pip install pytest==9.1.1
+      - name: Run tests
+        run: python -m pytest -v
+
+  full-run:
+    if: github.event_name == 'workflow_dispatch' && inputs.full_run
+    needs: tests
+    runs-on: windows-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install packages
+        run: python -m pip install -r requirements.txt
+      - name: Run the enrichment
+        run: python enrich_permits.py
+      - name: Keep the output CSV
+        uses: actions/upload-artifact@v4
+        with:
+          name: occupancy-permits-fhwa-2026
+          path: python_test/output/occupancy_permits_fhwa_2026.csv
