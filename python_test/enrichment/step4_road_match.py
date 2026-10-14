@@ -84,12 +84,21 @@ def nearest_road(x, y, address):
             road = roads[0]
             note = f"nearest road on wider search ({radius} m) - check"
 
+    # Other real-road segments about as close as the chosen one: the point sits where
+    # two roads meet, or where one road changes block. Step 5 compares their classes.
+    tied = [
+        c for c in roads
+        if c["subBlockKey"] != road["subBlockKey"]
+        and abs(c["offsetInMeters"] - road["offsetInMeters"]) <= config.TIE_DISTANCE_M
+    ]
+
     return {
         "SubBlockKey": road["subBlockKey"],
         "RoadName": road["routeName"],
         "RouteType": road["routeType"],
         "DistanceToRoad_m": road["offsetInMeters"],
         "MatchNote": note,
+        "TiedSubBlockKeys": ";".join(dict.fromkeys(c["subBlockKey"] for c in tied)),
     }
 
 
@@ -123,7 +132,8 @@ def road_name(name):
 
 def no_match(reason):
     # An empty answer, with the reason no road was found
-    return {"SubBlockKey": None, "RoadName": None, "RouteType": None, "DistanceToRoad_m": None, "MatchNote": reason}
+    return {"SubBlockKey": None, "RoadName": None, "RouteType": None, "DistanceToRoad_m": None,
+            "MatchNote": reason, "TiedSubBlockKeys": ""}
 
 
 def point_key(x, y):

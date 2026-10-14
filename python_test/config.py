@@ -29,6 +29,7 @@ UTILITY_PATTERNS = {
 COORDINATE_SYSTEM = 26985   # XCoord/YCoord are in NAD83 / Maryland State Plane (metres)
 SEARCH_RADIUS_M = 50        # 99% of permit points are within 30 m of the street
 WIDER_SEARCH_RADIUS_M = 100 # second try for the few points with no road within 50 m
+TIE_DISTANCE_M = 1          # another road segment this close to the chosen one = same spot (intersection or block boundary)
 PARALLEL_LOOKUPS = 5        # road lookups take ~1.5 s each, so run a few at a time
 
 # Segment types with no FHWA functional class. The brief says to skip alleys;
