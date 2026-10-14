@@ -20,22 +20,23 @@ NAME_COLUMNS = ["ApplicantCompany", "PermitteeName", "OwnerName"]
 
 def load_permits():
     """Return one row per permit location for the configured utilities, types and dates."""
-    types = ", ".join(f"'{t}'" for t in config.PERMIT_TYPES)
-    permits = fetch_layer(
-        config.PERMITS_URL,
-        where=f"EventTypeDescription IN ({types})",
-        fields=",".join(FIELDS),
-        geometry=False,
-    )
+    # Download every permit location in the layer, keeping only the columns we use
+    permits = fetch_layer(config.PERMITS_URL, fields=",".join(FIELDS), geometry=False)
 
-    # Dates are compared in DC time, so this filter is done here rather than on the server (UTC)
+    # Keep the two permit types named in the brief
+    is_permit_type = permits["EventTypeDescription"].isin(config.PERMIT_TYPES)
+
+    # Keep permits applied for or issued from the start date on (compared in DC time)
     start = pd.Timestamp(config.START_DATE, tz=TIMEZONE)
-    in_period = (permits["ApplicationDate"] >= start) | (permits["IssueDate"] >= start)
-    permits = permits[in_period].copy()
+    is_in_period = (permits["ApplicationDate"] >= start) | (permits["IssueDate"] >= start)
 
+    permits = permits[is_permit_type & is_in_period].copy()
+
+    # Keep only permits from the three utilities, and record which one
     permits["Utility"] = find_utility(permits)
     permits = permits[permits["Utility"].notna()].reset_index(drop=True)
 
+    # The layer drops old permits over time, so note when this copy was taken
     permits["DataPulledAt"] = pd.Timestamp.now(tz=TIMEZONE).floor("s")
     return permits
 
