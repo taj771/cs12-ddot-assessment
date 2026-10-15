@@ -14,7 +14,8 @@ import pandas as pd
 import requests
 
 PERMITS_23 = "https://maps2.dcgis.dc.gov/dcgis/rest/services/DCGIS_APPS/DDOT_TOPS/MapServer/23"
-YEARLY_LAYERS = [  # DC's yearly construction permit layers, which keep every permit of the year
+# DC's yearly construction permit layers, which keep every permit of the year
+YEARLY_LAYERS = [
     "https://maps2.dcgis.dc.gov/dcgis/rest/services/FEEDS/DDOT/FeatureServer/46",  # 2025
     "https://maps2.dcgis.dc.gov/dcgis/rest/services/FEEDS/DDOT/FeatureServer/48",  # 2026
 ]
@@ -33,9 +34,28 @@ OUTPUT_DIR = Path(__file__).resolve().parent.parent / "prepared_data"
 DC_HOLIDAYS = holidays.US(subdiv="DC", years=[2025, 2026])
 HOLIDAY_DATES = np.array(sorted(DC_HOLIDAYS), dtype="datetime64[D]")
 
+# Words in the work item names that tell which utility an excavation is for
+UTILITY_WORDS = {
+    "Gas": "gas",
+    "Water": "water|hydrant|valve",
+    "Sewer": "sewer|clean out",
+    "Electric": "electric|conduit|cathodic",
+    "Telecom": "telecom|fiber|cable",
+    "Test pits": "boring|test pit",
+}
+
+# Applicant groups, checked in this order against the permittee, applicant and owner names
+APPLICANT_NAMES = {
+    "Washington Gas": r"wash gas|washington gas|wgl",
+    "DC Water": r"dc ?water|wasa",
+    "PEPCO": r"pepco|potomac electric",
+    "Telecom": r"verizon|comcast|zayo|crown castle|at&t|lumen|cogent|rcn",
+    "DC government": r"department|district of columbia|ddot|doee|public schools|office of",
+}
+
 
 def download(layer_url, where="1=1", fields="*"):
-    # All rows matching `where`, page by page (the services return at most 2,000 per request)
+    # All rows matching the where clause, page by page (the services return at most 2,000 per request)
     rows, offset = [], 0
     while True:
         params = {"where": where, "outFields": fields, "returnGeometry": "false", "orderByFields": "OBJECTID",
@@ -54,6 +74,7 @@ def to_dc_time(values, already_local=False):
     # DC local time labelled as UTC, so those are read as local time directly.
     dates = pd.to_datetime(values, unit="ms")
     if already_local:
+        # the clocks change in November and March, so one hour a year is doubled and one is missing
         return dates.dt.tz_localize(TIMEZONE, ambiguous="NaT", nonexistent="shift_forward")
     return dates.dt.tz_localize("UTC").dt.tz_convert(TIMEZONE)
 
@@ -71,42 +92,42 @@ def business_days(start, end):
 
 def work_type(excavation, paving, fixture, overhead):
     # Level 1 permit category from the work-type flags (the yearly layers have no overhead flag)
-    types = [name for flag, name in [(excavation, "Excavation"), (paving, "Paving"), (fixture, "Fixture"),
-                                     (overhead, "Overhead work")] if flag]
+    flags = {"Excavation": excavation, "Paving": paving, "Fixture": fixture, "Overhead work": overhead}
+    types = [name for name, flag in flags.items() if flag]
+    if not types:
+        return "Other (projections, landscaping, rental)"
     if len(types) > 1:
         return "Multiple types"
-    return types[0] if types else "Other (projections, landscaping, rental)"
+    return types[0]
 
 
 def excavation_for(work_items):
     # Level 2 for excavation permits: which utility the work is for, from the work item names
     text = str(work_items).lower()
-    found = [name for name, words in [("Gas", "gas"), ("Water", "water|hydrant|valve"), ("Sewer", "sewer|clean out"),
-                                      ("Electric", "electric|conduit|cathodic"), ("Telecom", "telecom|fiber|cable"),
-                                      ("Test pits", "boring|test pit")] if re.search(words, text)]
-    if len(found) > 1:
-        return "Several utilities"
-    return found[0] if found else "Other excavation"
+    found = [name for name, words in UTILITY_WORDS.items() if re.search(words, text)]
+    if len(found) == 1:
+        return found[0]
+    return "Several utilities" if found else "Other excavation"
 
 
 def applicant(names):
     # Who the permit is for, from the permittee, applicant and owner names
     names = names.lower()
-    for group, pattern in [("Washington Gas", r"wash gas|washington gas|wgl"), ("DC Water", r"dc ?water|wasa"),
-                           ("PEPCO", r"pepco|potomac electric"),
-                           ("Telecom", r"verizon|comcast|zayo|crown castle|at&t|lumen|cogent|rcn"),
-                           ("DC government", r"department|district of columbia|ddot|doee|public schools|office of")]:
+    for group, pattern in APPLICANT_NAMES.items():
         if re.search(pattern, names):
             return group
     return "Private / other"
 
 
 def approvals():
-    # New permits applied for in FY26 and approved by 30 September 2026, one row per permit (layer 23)
+    # New permits applied for in FY26 and approved by 30 September 2026, one row per permit (layer 23).
+    # Renewal = 1 means a new permit, 2 a renewal.
     rows = download(PERMITS_23, where="Renewal = 1 AND ApplicationDate >= timestamp '2025-10-01 00:00:00'")
     locations = rows.groupby("TrackingNumber").size()
     permits = rows.drop_duplicates("TrackingNumber").copy()
-    for column in ["ApplicationDate", "ReadyForReviewDate", "LastApprovalDate", "IssueDate", "LastResubmissionRequestDate"]:
+    date_columns = ["ApplicationDate", "ReadyForReviewDate", "LastApprovalDate", "IssueDate",
+                    "LastResubmissionRequestDate"]
+    for column in date_columns:
         permits[column] = to_dc_time(permits[column])
     permits = permits[permits["LastApprovalDate"].notna() & (permits["LastApprovalDate"] < FY27_START)]
 
@@ -120,16 +141,16 @@ def approvals():
     permits["CompletePeriod"] = permits["ApplicationDate"] >= COMPLETE_FROM
 
     # Categories and splits
-    permits["WorkType"] = [work_type(*flags) for flags in
-                           permits[["IsExcavation", "IsPaving", "IsFixture", "IsOverHeadWork"]].eq(1).values]
+    flags = permits[["IsExcavation", "IsPaving", "IsFixture", "IsOverHeadWork"]].eq(1)
+    permits["WorkType"] = flags.apply(lambda row: work_type(*row), axis=1)
     permits["ExcavationFor"] = np.where(permits["WorkType"] == "Excavation",
                                         permits["TypeDetailNames"].map(excavation_for), None)
     permits["Applicant"] = (permits["PermitteeName"].fillna("") + " " + permits["ApplicantCompany"].fillna("")
                             + " " + permits["OwnerName"].fillna("")).map(applicant)
-    permits["ResubmissionRequested"] = permits["LastResubmissionRequestDate"].notna().map({True: "Yes", False: "No"})
+    permits["ResubmissionRequested"] = np.where(permits["LastResubmissionRequestDate"].notna(), "Yes", "No")
     permits["Locations"] = permits["TrackingNumber"].map(locations)
     permits["LocationsGroup"] = pd.cut(permits["Locations"], [0, 1, 3, 10, 10_000],
-                                       labels=["1", "2–3", "4–10", "11 or more"]).astype(str)
+                                       labels=["1", "2-3", "4-10", "11 or more"]).astype(str)
     permits["AppliedMonth"] = permits["ApplicationDate"].dt.strftime("%Y-%m")
 
     columns = ["TrackingNumber", "PermitNumber", "StatusDescription", "ApplicationDate", "ReadyForReviewDate",
@@ -141,7 +162,7 @@ def approvals():
 
 def full_year():
     # All new permits applied for and issued in FY26, from the yearly layers, one row per permit
-    fields = ("TRACKINGNUMBER,PERMITNUMBER,APPLICATIONDATE,ISSUEDATE,ISEXCAVATION,ISPAVING,ISFIXTURE")
+    fields = "TRACKINGNUMBER,PERMITNUMBER,APPLICATIONDATE,ISSUEDATE,ISEXCAVATION,ISPAVING,ISFIXTURE"
     where = "APPLICATIONDATE >= timestamp '2025-10-01 00:00:00'"
     permits = pd.concat([download(url, where, fields) for url in YEARLY_LAYERS]).drop_duplicates("TRACKINGNUMBER")
     for column in ["APPLICATIONDATE", "ISSUEDATE"]:
@@ -153,8 +174,8 @@ def full_year():
     permits = permits[is_new & issued_fy26].copy()
 
     permits["DaysToIssue"] = business_days(permits["APPLICATIONDATE"], permits["ISSUEDATE"])
-    permits["WorkType"] = [work_type(*flags, False) for flags in
-                           permits[["ISEXCAVATION", "ISPAVING", "ISFIXTURE"]].eq("T").values]
+    flags = permits[["ISEXCAVATION", "ISPAVING", "ISFIXTURE"]].eq("T")
+    permits["WorkType"] = flags.apply(lambda row: work_type(*row, overhead=False), axis=1)
     permits["AppliedMonth"] = permits["APPLICATIONDATE"].dt.strftime("%Y-%m")
     permits = permits.rename(columns={"TRACKINGNUMBER": "TrackingNumber", "PERMITNUMBER": "PermitNumber",
                                       "APPLICATIONDATE": "ApplicationDate", "ISSUEDATE": "IssueDate"})
@@ -190,6 +211,7 @@ if __name__ == "__main__":
     # Quick check of the headline numbers
     brief = approved[approved["IssuedInFY26"] & approved["CompletePeriod"]]
     print(f"Approvals file: {len(approved):,} permits; counted for the brief in the complete period: {len(brief):,}")
-    print(f"  Business days to approve: average {brief['DaysToApprove'].mean():.1f}, median {brief['DaysToApprove'].median():.0f}")
+    days = brief["DaysToApprove"]
+    print(f"  Business days to approve: average {days.mean():.1f}, median {days.median():.0f}")
     print(f"Days-to-issue file: {len(full):,} permits; average {full['DaysToIssue'].mean():.1f} business days")
     print(f"Files written to {OUTPUT_DIR}")
