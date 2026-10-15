@@ -1,0 +1,4 @@
+# Packages needed to rebuild the Tableau data (tested on Python 3.11)
+requests==2.34.2
+pandas==3.0.6
+holidays==0.106
