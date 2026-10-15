@@ -50,7 +50,7 @@ Snap moves the features of its input in place, so snapping is done on a copy and
    - `SnapDistance_m` (Double) = `!NEAR_DIST!`
    - `WasOnAlley` (Text 3): `Yes` where the permit sits on an alley or driveway, otherwise `No`. To set it:
      - Make a layer from **Roadway Subblock (REST)** with the definition query `ROADTYPE IN ('4', '5')` (alleys and driveways), named *Alleys and driveways (REST)*.
-     - **Select Layer By Location**: `Permits_Snapped` that are **within a distance** of *Alleys and driveways (REST)*, 0.5 Meters.
+     - **Select Layer By Location**: `Permits_Snapped` that are **within a distance** of *Alleys and driveways (REST)*, 2 Meters. (Points that sit on a line come out up to about 2 m off it after the feeds are converted from Web Mercator to our metre system, so 2 m is the tolerance for "on a line".)
      - Calculate `WasOnAlley` = `"Yes"` on the selection. Then **Select Layer By Attribute**, switch the selection, and calculate `"No"`. Then clear the selection.
    - `CheckSnap` (Text 3) = `Yes` when `SnapDistance_m > 20`, otherwise `No`. Beyond 20 m the nearest street is less often the address street (51–67% in the sample vs 94% within 20 m).
 
@@ -60,11 +60,11 @@ Snap moves the features of its input in place, so snapping is done on a copy and
 
 **Snap** (Editing):
 - Input features: `Permits_Snapped`
-- Snap environment: `RoadwaySubblock`, Type **Edge**, Distance **70 Meters**
+- Snap environment: `RoadwaySubblock`, Type **Edge**, Distance **150 Meters**
 
-70 m covers every off-street permit in the sample (the furthest was 64 m). Permits already on a street don't move, and alleys aren't in `RoadwaySubblock`, so nothing can snap to an alley.
+The Near step showed 11 permits 73–141 m from any street (large sites such as 3225 Woodley Rd NW), so 150 m makes sure every permit lands on a street. Snap always takes the nearest street, so the distance limit doesn't change where the other permits go. Permits already on a street don't move, and alleys aren't in `RoadwaySubblock`, so nothing can snap to an alley.
 
-Check: **Near** again on `Permits_Snapped` → `NEAR_DIST` should now be 0 for all permits (any left above 0 were further than 70 m and are listed in the write-up).
+Check: **Near** again on `Permits_Snapped` → `NEAR_DIST` should now be 0 (or a few millimetres) for all permits.
 
 Optional, for exploring: **XY To Line** (Data Management) from `Permits_Snapped`, start `Orig_X`/`Orig_Y`, end = the snapped position (first add `Snap_X`/`Snap_Y` with Calculate Geometry Attributes) → `Permit_SnapMoves`. One short line per permit that moved, showing where it jumped from.
 
