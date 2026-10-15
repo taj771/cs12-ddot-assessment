@@ -41,11 +41,17 @@ The geoprocessing history is in the project (Catalog → Project → Geoprocessi
 There is no data dictionary, so I explored the three layers in a notebook first, then ran the geoprocessing in Pro and checked each output against an independent calculation in Python.
 
 ```
-REST feeds ──filters──► local copies ──► permits: flag alley points, snap to streets (150 m)
-                                         requests: snap a copy the same way
-                                    ──► link every permit and request to every block it touches (0.5 m)
-                                    ──► count per block (permits counted once per block), latest dates
-                                    ──► join onto the blocks, flag blocks with both
+1. Filter      Three REST feeds → local copies with only the rows the brief asks for
+                   │
+2. Snap        Move permits (and a copy of the requests) onto the nearest street
+                   │       (about a quarter of the permits were sitting on alleys)
+                   │
+3. Link        List every block each permit and request touches
+                   │       (a point at a junction touches more than one block)
+                   │
+4. Count       Per block: number of permits and requests, latest dates
+                   │
+5. Enrich      Write the counts onto the blocks and flag blocks with both
 ```
 
 ## Key decisions
