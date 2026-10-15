@@ -48,13 +48,14 @@ Snap moves the features of its input in place, so snapping is done on a copy and
 3. **Near** (Analysis): input `Permits_Snapped`, near features `RoadwaySubblock`, no search radius. It adds `NEAR_DIST` = how far each permit is from the nearest street, service road or ramp, which is how far the snap will move it.
 4. **Add Field** + **Calculate Field** on `Permits_Snapped`:
    - `SnapDistance_m` (Double) = `!NEAR_DIST!`
-   - `WasOnAlley` (Text 3): `Yes` where the permit sits on an alley or driveway, otherwise `No`. To set it:
-     - Make a layer from **Roadway Subblock (REST)** with the definition query `ROADTYPE IN ('4', '5')` (alleys and driveways), named *Alleys and driveways (REST)*.
-     - **Select Layer By Location**: `Permits_Snapped` that are **within a distance** of *Alleys and driveways (REST)*, 2 Meters. (Points that sit on a line come out up to about 2 m off it after the feeds are converted from Web Mercator to our metre system, so 2 m is the tolerance for "on a line".)
-     - Calculate `WasOnAlley` = `"Yes"` on the selection. Then **Select Layer By Attribute**, switch the selection, and calculate `"No"`. Then clear the selection.
+   - `WasOnAlley` (Text): `Yes` where the permit sits on an alley or driveway, otherwise `No`. To set it:
+     - **Export Features**: Roadway Subblock (REST) → `AlleysDriveways`, filter `ROADTYPE IN ('4', '5')` (11,497 lines). A local copy is needed: selecting against the REST layer only used part of the alleys (2,110 found instead of 5,038).
+     - Calculate `WasOnAlley` = `"No"` with nothing selected.
+     - **Select Layer By Location**: `Permits_Snapped` **within a distance** of `AlleysDriveways`, 2 Meters. (Points that sit on a line come out up to about 2 m off it after the feeds are converted from Web Mercator to our metre system, so 2 m is the tolerance for "on a line".)
+     - Calculate `WasOnAlley` = `"Yes" if !NEAR_DIST! > 2 else "No"` on the selection (a permit at an alley mouth that is also on the street stays No). Then clear the selection.
    - `CheckSnap` (Text 3) = `Yes` when `SnapDistance_m > 20`, otherwise `No`. Beyond 20 m the nearest street is less often the address street (51–67% in the sample vs 94% within 20 m).
 
-   Expected: about a third of permits have `WasOnAlley = Yes`.
+   Expected: 5,038 permits with `WasOnAlley = Yes` (27%); 4,260 with `CheckSnap = Yes`.
 
 ## 4. Snap the permits to the roadway
 
