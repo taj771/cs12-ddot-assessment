@@ -28,7 +28,7 @@ One finding affects all three tests: DDOT's permit status layers remove permits 
 
 ## Running it
 
-Python 3.11. Each of `python_test/` and `tableau_test/` has its own `requirements.txt` and run instructions in its README. The Python unit tests run offline:
+Python 3.11 or newer. Each of `python_test/` and `tableau_test/` has its own `requirements.txt` and run instructions in its README. The Python unit tests run offline:
 
 ```
 cd python_test

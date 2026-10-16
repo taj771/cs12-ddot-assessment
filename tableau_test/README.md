@@ -41,11 +41,21 @@ Each bar shows the number of permits it is based on. Some groups are small (6 "O
 
 ## Rebuilding the data
 
-Needs Python 3.11 and an internet connection (DC's public map services, no key needed). In this folder:
+Needs Python 3.11 or newer and an internet connection (DC's public map services, no key needed). In this folder:
+
+Windows (Command Prompt):
 
 ```
-python -m venv .venv
-.venv\Scripts\activate            (macOS / Linux: source .venv/bin/activate)
+py -m venv .venv
+.venv\Scripts\python -m pip install -r requirements.txt
+.venv\Scripts\python scripts\prepare_data.py
+```
+
+macOS / Linux:
+
+```
+python3 -m venv .venv
+source .venv/bin/activate
 pip install -r requirements.txt
 python scripts/prepare_data.py
 ```

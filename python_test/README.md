@@ -8,16 +8,17 @@ Code and full history: https://github.com/taj771/cs12-ddot-assessment (this test
 
 ## How to run
 
-Needs Python 3.11 and an internet connection (all data comes from DC's public map services; no API key is needed).
+Needs Python 3.11 or newer (tested on 3.11 and 3.14) and an internet connection (all data comes from DC's public map services; no API key is needed).
 
 **Windows 11** (Command Prompt, in this folder):
 
 ```
-py -3.11 -m venv .venv
-.venv\Scripts\activate
-pip install -r requirements.txt
-python enrich_permits.py
+py -m venv .venv
+.venv\Scripts\python -m pip install -r requirements.txt
+.venv\Scripts\python enrich_permits.py
 ```
+
+(This calls the environment's Python directly, so it works even where `activate` is blocked.)
 
 **macOS / Linux:**
 
@@ -28,11 +29,11 @@ pip install -r requirements.txt
 python enrich_permits.py
 ```
 
-The first run takes about 20 minutes, because each permit location is looked up in DDOT's road service and in the address repository. The answers are saved in `cache/`, so later runs take under a minute. Delete `cache/` to look everything up again.
+The first run takes about 20 minutes, because each permit location is looked up in DDOT's road service and in the address repository. The answers are saved in `cache/`, so later runs take under a minute. The cache from the 14 October run is included, so only locations added since then are looked up. Delete `cache/` to look everything up again.
 
 Each step can also be run on its own to check it, e.g. `python -m enrichment.step4_road_match`. It saves its table to `work/`.
 
-**Tests.** `pip install pytest` then `python -m pytest`. The tests cover the matching rules (utility names, address parsing, skipping alleys, corner ties, wider search, highest class per permit, the MAR check) with made-up data, so they run offline in about a second. GitHub runs them on Windows and Linux on every change.
+**Tests.** `pip install -r requirements-dev.txt` then `python -m pytest` (on Windows: `.venv\Scripts\python -m pip install -r requirements-dev.txt`, then `.venv\Scripts\python -m pytest`). The tests cover the matching rules (utility names, address parsing, skipping alleys, corner ties, wider search, highest class per permit, the MAR check) with made-up data, so they run offline in about a second. GitHub runs them on Windows and Linux on every change.
 
 ## Output
 
