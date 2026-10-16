@@ -25,7 +25,7 @@
       <connection class='federated'>
         <named-connections>
           <named-connection caption='fy26_approvals' name='textscan.190c4o40f6dx4v176hb3y11zt5gs'>
-            <connection class='textscan' directory='/Users/tharakajayalath/Desktop/Claude_codex/transport_ds/cs12-ddot-assessment/tableau_test/prepared_data' filename='fy26_approvals.csv' password='' server='' />
+            <connection class='textscan' directory='prepared_data' filename='fy26_approvals.csv' password='' server='' />
           </named-connection>
         </named-connections>
         <relation connection='textscan.190c4o40f6dx4v176hb3y11zt5gs' name='fy26_approvals.csv' table='[fy26_approvals#csv]' type='table'>
@@ -401,7 +401,7 @@
       <connection class='federated'>
         <named-connections>
           <named-connection caption='dc_holidays' name='textscan.0srib201ktqw041fk4sov1ewdg45'>
-            <connection class='textscan' directory='/Users/tharakajayalath/Desktop/Claude_codex/transport_ds/cs12-ddot-assessment/tableau_test/prepared_data' filename='dc_holidays.csv' password='' server='' />
+            <connection class='textscan' directory='prepared_data' filename='dc_holidays.csv' password='' server='' />
           </named-connection>
         </named-connections>
         <relation connection='textscan.0srib201ktqw041fk4sov1ewdg45' name='dc_holidays.csv' table='[dc_holidays#csv]' type='table'>
@@ -481,7 +481,7 @@
       <connection class='federated'>
         <named-connections>
           <named-connection caption='fy26_days_to_issue' name='textscan.1cbkc67139hpj013i8zs41eqcm9e'>
-            <connection class='textscan' directory='/Users/tharakajayalath/Desktop/Claude_codex/transport_ds/cs12-ddot-assessment/tableau_test/prepared_data' filename='fy26_days_to_issue.csv' password='' server='' />
+            <connection class='textscan' directory='prepared_data' filename='fy26_days_to_issue.csv' password='' server='' />
           </named-connection>
         </named-connections>
         <relation connection='textscan.1cbkc67139hpj013i8zs41eqcm9e' name='fy26_days_to_issue.csv' table='[fy26_days_to_issue#csv]' type='table'>
@@ -644,7 +644,7 @@
       <connection class='federated'>
         <named-connections>
           <named-connection caption='fy26_completeness' name='textscan.0js5tto1fqfuak1f2ea060pe432o'>
-            <connection class='textscan' directory='/Users/tharakajayalath/Desktop/Claude_codex/transport_ds/cs12-ddot-assessment/tableau_test/prepared_data' filename='fy26_completeness.csv' password='' server='' />
+            <connection class='textscan' directory='prepared_data' filename='fy26_completeness.csv' password='' server='' />
           </named-connection>
         </named-connections>
         <relation connection='textscan.0js5tto1fqfuak1f2ea060pe432o' name='fy26_completeness.csv' table='[fy26_completeness#csv]' type='table'>
