@@ -1,7 +1,7 @@
 """Build the data files for the Tableau workbook on FY26 construction permit approval times.
 
 Run from the tableau_test folder:  python scripts/prepare_data.py
-Writes four CSV files to prepared_data/. The rules come from
+Writes four CSV files to prepared_data/, with all dates in DC local time. The rules come from
 notebooks/step1_explore_permits.ipynb.
 """
 
@@ -203,8 +203,9 @@ if __name__ == "__main__":
     holiday_table = pd.DataFrame({"Date": [str(day) for day in fy26_days],
                                   "Holiday": [DC_HOLIDAYS[day] for day in fy26_days]})
 
-    approved.to_csv(OUTPUT_DIR / "fy26_approvals.csv", index=False)
-    full.to_csv(OUTPUT_DIR / "fy26_days_to_issue.csv", index=False)
+    # Dates are all DC time, written without the -04:00 / -05:00 ending so Tableau reads them as dates
+    approved.to_csv(OUTPUT_DIR / "fy26_approvals.csv", index=False, date_format="%Y-%m-%d %H:%M:%S")
+    full.to_csv(OUTPUT_DIR / "fy26_days_to_issue.csv", index=False, date_format="%Y-%m-%d %H:%M:%S")
     coverage.to_csv(OUTPUT_DIR / "fy26_completeness.csv", index=False)
     holiday_table.to_csv(OUTPUT_DIR / "dc_holidays.csv", index=False)
 
