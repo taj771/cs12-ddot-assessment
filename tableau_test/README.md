@@ -19,7 +19,6 @@ Most permits are routine gas, water and sewer excavations that are approved with
 | File | Contents |
 |---|---|
 | `DDOT_FY26_Permit_Approvals.twbx` | **The workbook**, with the data inside. Opens in Tableau Desktop or Reader 2024.2 or later. |
-| `DDOT_FY26_Permit_Approvals.twb` | The same workbook without the data (kept for version control) |
 | `prepared_data/` | The four CSV files the workbook reads |
 | `scripts/prepare_data.py` | Downloads the permits and builds the CSV files |
 | `notebooks/step1_explore_permits.ipynb` | The data exploration the rules come from |
