@@ -104,7 +104,7 @@ All tools were run from the Geoprocessing pane, so they are in the project's his
 - **Counts add up to more than the number of permits.** The sum of `PermitCount` over all blocks is 7,094, not 3,552, because a permit is counted on each block it touches. The number answers "how many permits affect this block?".
 - **Snapping can pick the wrong street.** From an alley, a side street is sometimes closer than the front street. Within 20 m the nearest street matched the permit's address street 94% of the time; beyond 20 m only 51–67%. These permits have `CheckSnap = 'Yes'` (4,260). `Permit_SnapMoves` shows each move.
 - **Some work may really be in the alley.** `WasOnAlley = 'Yes'` (5,038) marks the permits DDOT had placed on an alley, so they can be reviewed rather than assumed to be street work.
-- **The permit layer only keeps recent permits.** As in the occupancy permit layer, expired permits seem to drop out after a while, so the "expiring on or after 1 October 2025" set is what remains on the pull date.
+- **The permit layer only keeps recent permits.** Expired permits drop out of it: the earliest expiration date in the layer is August 2026, and comparing it with DC's yearly construction permit layers (see the Tableau test) confirms that most permits of the past year are gone. So renewals that expired between October 2025 and August 2026 are missing, and the counts per block are lower than the brief's filter would give on complete data.
 - **Dates are stored in UTC**, as the services provide them (e.g. 04:00 DC time shows as 08:00).
 
 ## With more time
