@@ -23,10 +23,14 @@ ImportLog/
 Index/
 GpMessages/
 
-# Large packaged deliverables (published as release assets instead)
+# Large packaged deliverables (kept out of git; they are in the submission zips)
 *.ppkx
 *.twbx
 *.zip
+
+# Rendered previews of the READMEs
+README.html
+README_files/
 
 # Secrets / local config
 .env

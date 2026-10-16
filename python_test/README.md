@@ -10,7 +10,7 @@ Code and full history: https://github.com/taj771/cs12-ddot-assessment (this test
 
 Needs Python 3.11 and an internet connection (all data comes from DC's public map services; no API key is needed).
 
-**Windows 11** (Command Prompt, in the `python_test` folder):
+**Windows 11** (Command Prompt, in this folder):
 
 ```
 py -3.11 -m venv .venv
@@ -117,6 +117,7 @@ The road lookup picks the road **nearest to the permit point**. To check it anot
 - **Utility work under other permit types is out of scope.** For example, "Lead Free DC" (DC Water's lead pipe replacement programme) and "Manhole Access" permits are excluded because the brief names the two permit types to use.
 - **No utility crane permits in this pull.** All output rows are Construction Staging Area. Layer 24 has Mobile Crane Work Zone applications, but none name DC Water, PEPCO or Washington Gas (their applicants are permit agents and private firms). The crane type stays in the filter as the brief asks.
 - **One location has no class.** 1900 Massachusetts Ave SE has no road within 100 m of its point.
+- **One location appears three times.** Permit 11213855 lists 1923 Shepherd St NW three times with the same details, as it is in the permit layer. The rows are kept as they come from the source.
 - **Ramps count as roads.** At one corner (Washington Ave × 1st St SW) the higher class came from a ramp segment.
 
 ## With more time

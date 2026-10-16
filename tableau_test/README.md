@@ -41,7 +41,7 @@ Each bar shows the number of permits it is based on. Some groups are small (6 "O
 
 ## Rebuilding the data
 
-Needs Python 3.11 and an internet connection (DC's public map services, no key needed). In the `tableau_test` folder:
+Needs Python 3.11 and an internet connection (DC's public map services, no key needed). In this folder:
 
 ```
 python -m venv .venv
