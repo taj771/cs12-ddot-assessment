@@ -2,6 +2,8 @@
 
 Enriches calendar year 2026 Public Space Occupancy Permit locations (DC Water, PEPCO and Washington Gas; Construction Staging Area and Mobile Crane Work Zone permits) with the FHWA functional class of the road at each location, and the highest functional class for each permit.
 
+Code and full history: https://github.com/taj771/cs12-ddot-assessment (this test: [`python_test/`](https://github.com/taj771/cs12-ddot-assessment/tree/main/python_test)).
+
 **Result** (data pulled 14 October 2026): 4,983 permit locations from 3,129 applications, in [`output/occupancy_permits_fhwa_2026.csv`](output/occupancy_permits_fhwa_2026.csv). Every location but one has a functional class. 35 locations are flagged for review.
 
 ## How to run

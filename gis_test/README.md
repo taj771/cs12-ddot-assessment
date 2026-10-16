@@ -2,6 +2,8 @@
 
 ArcGIS Pro 3.7 project that enriches DDOT's Roadway SubBlock centrelines with excavation and paving permit renewals and open roadway service requests, and creates a version of the permits snapped to the roadway. Data pulled 14 October 2026.
 
+Code and full history: https://github.com/taj771/cs12-ddot-assessment (this test: [`gis_test/`](https://github.com/taj771/cs12-ddot-assessment/tree/main/gis_test)).
+
 **Result**
 
 | | Blocks |
